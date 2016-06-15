@@ -49,5 +49,23 @@ public class MockGastoService {
 		gastos.add(gasto);
 	}
 
+	public Gasto detailGasto(Long id) {
+		for (Gasto gasto : gastos) {
+			if(gasto.getId().equals(id))
+				return gasto;
+		}
+		
+		return null;
+	}
+
+	public void removeGasto(Gasto toRemove) {
+		for (Gasto gasto : gastos) {
+			if(gasto.getId().equals(toRemove.getId())){
+				gastos.remove(gasto);
+				return;
+			}
+		}
+	}
+
 
 }
