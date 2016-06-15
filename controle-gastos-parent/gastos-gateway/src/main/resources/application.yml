@@ -1,0 +1,9 @@
+zuul:
+  routes:
+    cadastro:
+      id: cadastro
+      custom-sensitive-headers: true
+      url: http://localhost:8080/gastos/cadastro
+      retryable: true
+      path: /cadastro/**
+      
