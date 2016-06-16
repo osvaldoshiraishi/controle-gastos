@@ -3,7 +3,11 @@ zuul:
     cadastro:
       id: cadastro
       custom-sensitive-headers: true
-      url: http://localhost:8080/gastos/cadastro
+      url: http://localhost:8081/gastos/cadastro
       retryable: true
       path: /cadastro/**
+    oauth:
+      path: /oauth/**
+      custom-sensitive-headers: true
+      url: http://localhost:7777/oauth2-authserver/oauth
       

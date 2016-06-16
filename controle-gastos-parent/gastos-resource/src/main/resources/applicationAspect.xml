@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
+	default-lazy-init="true" >
+	
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="serviceOperationForTx"
+			expression="execution(public * oss.cloud..model.service.*Service.*(..)) || execution(public * oss.cloud..service.*ServiceSupport.*(..))" />
+		<aop:advisor pointcut-ref="serviceOperationForTx"
+			advice-ref="transactionInterceptor" />
+	</aop:config>
+	
+</beans>
