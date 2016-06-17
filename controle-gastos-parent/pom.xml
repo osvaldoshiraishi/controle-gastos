@@ -30,48 +30,7 @@
         
         <!-- Maven plugins -->
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
-        <!-- <maven-war-plugin.version>2.6</maven-war-plugin.version>
-        <maven-surefire-plugin.version>2.19</maven-surefire-plugin.version>
-        <cargo-maven2-plugin.version>1.4.16</cargo-maven2-plugin.version> -->
 	</properties>
-	
-	
-	<!-- spcbrasil-artifactory -->
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>http://artifactory.spcbr.int.br/artifactory/repo</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://artifactory.spcbr.int.br/artifactory/repo</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>central</id>
-			<url>http://artifactory.spcbr.int.br/artifactory/repo</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>snapshots</id>
-			<url>http://artifactory.spcbr.int.br/artifactory/repo</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>
-	
-	
 	
 	<modules>
 		<module>gastos-gateway</module>

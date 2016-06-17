@@ -61,12 +61,9 @@ public class GastosController {
 	}
 	
 	@RequestMapping(value = "create", method = RequestMethod.POST)
-	public ResponseEntity<Gasto> create(@RequestBody Object object) {
-		log.info(String.format("Gastos create string: %s", object));
-		
-		/*log.info(String.format("Gasto no lugar %s no valor to %s", gasto.getLugar(), gasto.getValor()));
-		mockGastoService.mockCreateGasto(gasto);*/
-		Gasto gasto = this.mockGastoService.detailGasto(1L);
+	public ResponseEntity<Gasto> create(@RequestBody Gasto gasto) {
+		log.info(String.format("Gasto no lugar %s no valor to %s", gasto.getLugar(), gasto.getValor()));
+		mockGastoService.mockCreateGasto(gasto);
 		return new ResponseEntity<Gasto>(gasto, HttpStatus.OK);
 	}
 	

@@ -7,12 +7,15 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,40 +60,21 @@ public class GastosTests {
 	/**
 	 * Find all test
 	 */
-	//@Test
-	public void testeFindAllGastosSemGateway() {
+	@Test
+	public void testeFindAllGastosComGateway() {
 		final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
 		System.out.println("TOKEN: " + accessToken);
 		Assert.assertNotNull(accessToken);
-		ResponseEntity<String> resposta = restTemplate.getForEntity("http://localhost:8081/gastos/cadastro/despesas/findAll", String.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization","Bearer " + accessToken);
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<String> resposta = restTemplate.exchange(GATEWAY_URL +"/cadastro/despesas/findAll", HttpMethod.GET,entity,String.class);
 		Assert.assertTrue(HttpStatus.OK.equals(resposta.getStatusCode()));
 		System.out.println(resposta.getBody());
 		
 	}
 
-	/**
-	 * Create Test
-	 */
-	//@Test
-	public void testeCreateGastosSemGateway() {
-		Gasto g = new Gasto();
-		g.setId(1L);
-		g.setLugar("Extra");
-		g.setData(new Timestamp(System.currentTimeMillis()));
-		g.setTipo(TipoConta.CREDITO);
-		g.setTipoDespesa(TipoDespesa.SUPERMERCADO);
-		g.setValor(BigDecimal.valueOf(508.99D));
-		//final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
-		final Response response = RestAssured.given().body(g).contentType(ContentType.JSON).post("http://localhost:8081/gastos/cadastro/despesas/create");
-        assertEquals(200, response.getStatusCode());
-		Gasto included = response.as(Gasto.class);
-       Long id = included.getId();
-		ResponseEntity<Gasto> respostaDetail = restTemplate
-				.getForEntity("http://localhost:8081/gastos/cadastro/despesas/detail/" + id, Gasto.class);
-		Gasto detail = respostaDetail.getBody();
-		Assert.assertTrue(detail.getId().equals(id));
-	}
-	
 	/**
 	 * Create Test
 	 */
@@ -104,6 +88,7 @@ public class GastosTests {
 		g.setTipoDespesa(TipoDespesa.SUPERMERCADO);
 		g.setValor(BigDecimal.valueOf(508.99D));
 		final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
+		Assert.assertNotNull(accessToken);
 		final Response response = RestAssured.given().header("Authorization", "Bearer " + accessToken).body(g).contentType(ContentType.JSON).post(GATEWAY_URL + "/cadastro/despesas/create");
         assertEquals(200, response.getStatusCode());
 		Gasto included = response.as(Gasto.class);
@@ -116,38 +101,47 @@ public class GastosTests {
 	/**
 	 * Detail Test
 	 */
-	//@Test
+	@Test
 	public void testeDetailGasto() {
 		Long id = 1L;
-		ResponseEntity<Gasto> resposta = restTemplate.getForEntity(GATEWAY_URL + "/cadastro/despesas/detail/" + id,
-				Gasto.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
+		headers.set("Authorization","Bearer " + accessToken);
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<Gasto> resposta = restTemplate.exchange(GATEWAY_URL +"/cadastro/despesas/detail/"+id, HttpMethod.GET,entity,Gasto.class);
+		Assert.assertEquals(HttpStatus.OK,resposta.getStatusCode());
 		Gasto gasto = resposta.getBody();
 		Assert.assertTrue(gasto.getId().equals(id));
-		System.out.println(resposta.getBody());
 		Assert.assertNotNull(resposta.getBody());
 	}
 
 	/**
 	 * Update Test
 	 */
-	//@Test
+	@Test
 	public void testeUpdateGasto() {
 		Long id = 1L;
-		ResponseEntity<Gasto> resposta = restTemplate.getForEntity(GATEWAY_URL + "/cadastro/despesas/detail/" + id,
-				Gasto.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
+		headers.set("Authorization","Bearer " + accessToken);
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<Gasto> resposta = restTemplate.exchange(GATEWAY_URL +"/cadastro/despesas/detail/"+id, HttpMethod.GET,entity,Gasto.class);
+		Assert.assertTrue(HttpStatus.OK.equals(resposta.getStatusCode()));
 		Gasto gasto = resposta.getBody();
-		Assert.assertNotNull(gasto);
+		Assert.assertTrue(gasto.getId().equals(id));
 		String valorAntigo = gasto.getLugar();
 		String valorNovo = proximoLugar();
 		gasto.setLugar(valorNovo);
+		HttpEntity<Gasto> entityUpdate = new HttpEntity<Gasto>(gasto, headers);
 		ResponseEntity<Void> respostaUpdate = restTemplate
-				.postForEntity(GATEWAY_URL + "/cadastro/despesas/update/" + id, gasto, Void.class);
+				.exchange(GATEWAY_URL + "/cadastro/despesas/update/" + id, HttpMethod.POST,entityUpdate, Void.class);
 		Assert.assertTrue(HttpStatus.OK.equals(respostaUpdate.getStatusCode()));
-
-		ResponseEntity<Gasto> respostaDetailNovo = restTemplate
-				.getForEntity(GATEWAY_URL + "/cadastro/despesas/detail/" + id, Gasto.class);
-		Gasto novo = respostaDetailNovo.getBody();
-
+		HttpEntity<String> entityNovo = new HttpEntity<String>(headers);
+		ResponseEntity<Gasto> respostaNovo = restTemplate.exchange(GATEWAY_URL +"/cadastro/despesas/detail/"+id, HttpMethod.GET,entityNovo,Gasto.class);
+		Assert.assertTrue(HttpStatus.OK.equals(respostaNovo.getStatusCode()));
+		Gasto novo = respostaNovo.getBody();
 		Assert.assertNotNull(novo);
 		Assert.assertFalse(valorAntigo.equals(novo.getLugar()));
 		Assert.assertTrue(valorNovo.equals(novo.getLugar()));
@@ -165,22 +159,32 @@ public class GastosTests {
 		g.setTipo(TipoConta.CREDITO);
 		g.setTipoDespesa(TipoDespesa.SUPERMERCADO);
 		g.setValor(BigDecimal.valueOf(508.99D));
-		ResponseEntity<Gasto> resposta = restTemplate.postForEntity(GATEWAY_URL + "/cadastro/despesas/create", g,
-				Gasto.class);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		final String accessToken = obterToken("clientAssociado", "usuarioTeste", "abc123");
+		headers.set("Authorization","Bearer " + accessToken);
+		HttpEntity<Gasto> entity = new HttpEntity<Gasto>(g,headers);
+		ResponseEntity<Gasto> resposta = restTemplate.exchange(GATEWAY_URL + "/cadastro/despesas/create", HttpMethod.POST, entity,Gasto.class);
 		Assert.assertTrue(HttpStatus.OK.equals(resposta.getStatusCode()));
 		Assert.assertNotNull(resposta.getBody());
 		Gasto incluido = resposta.getBody();
 		// detail for id of created bean
 		Long id = incluido.getId();
+		HttpEntity<String> entityIncluido = new HttpEntity<String>(headers);
 		ResponseEntity<Gasto> respostaDetail = restTemplate
-				.getForEntity(GATEWAY_URL + "/cadastro/despesas/detail/" + id, Gasto.class);
+				.exchange(GATEWAY_URL + "/cadastro/despesas/detail/" + id,HttpMethod.GET,entityIncluido, Gasto.class);
 		Gasto detail = respostaDetail.getBody();
 		Assert.assertTrue(detail.getId().equals(id));
 		// remove
+		HttpEntity<Gasto> entityRemove = new HttpEntity<Gasto>(detail,headers);
 		ResponseEntity<Void> respostaRemove = restTemplate
-				.postForEntity(GATEWAY_URL + "/cadastro/despesas/remove/" + id, detail, Void.class);
+				.postForEntity(GATEWAY_URL + "/cadastro/despesas/remove/" + id, entityRemove, Void.class);
 		Assert.assertTrue(HttpStatus.OK.equals(respostaRemove.getStatusCode()));
-		ResponseEntity<Gasto> respostaCheck = restTemplate.getForEntity(GATEWAY_URL + "/cadastro/despesas/detail/" + id,
+		
+		//detail no conte
+		HttpEntity<String> entityNoContent = new HttpEntity<String>(headers);
+		ResponseEntity<Gasto> respostaCheck = restTemplate.exchange(GATEWAY_URL + "/cadastro/despesas/detail/" + id, HttpMethod.GET,entityNoContent,
 				Gasto.class);
 		Assert.assertTrue(HttpStatus.NO_CONTENT.equals(respostaCheck.getStatusCode()));
 	}
