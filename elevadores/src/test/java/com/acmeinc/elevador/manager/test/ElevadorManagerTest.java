@@ -43,7 +43,8 @@ public class ElevadorManagerTest {
 			if(usuario.getDataChegada().compareTo(dataAtual) > 0){
 				Thread.sleep(usuario.getDataChegada().getTimeInMillis() - dataAtual.getTimeInMillis());
 			}
-			elevadorManager.addUsuario(usuario);
+			Integer elevador = elevadorManager.addUsuario(usuario);
+			System.out.println(String.format("#Usuário %s foi adicionado ao elevador %s para ir no andar %s", usuario.getId(), elevador, usuario.getAndarDestino()));
 		}
 	}
 	

@@ -49,6 +49,12 @@ public class ElevadorManager implements ElevadorEventListener {
 		}
 	}
 
+	/**
+	 * Aciona o usuário na fila do elevador com melhor tempo de chegada no andar destino
+	 * 
+	 * @param usuario
+	 * @return
+	 */
 	public Integer addUsuario(Usuario usuario) {
 		Elevador elevadorSelecionado = ElevadorUtils.selecionarElevador(usuario.getAndarDestino(), this.elevadores,
 				this.fusoHorario);
