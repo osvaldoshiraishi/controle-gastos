@@ -1,5 +1,6 @@
 package com.acmeinc.elevadores.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TreeMap;
@@ -12,12 +13,28 @@ public class Viagem {
 	private Calendar dataSaida;
 	private StatusElevador status;
 	private boolean partiu;
+	private int qtdUsuarios;
 	
 	public Viagem() {
 		paradas = new TreeMap<>();
 		andarAtual = 1;
-		status = StatusElevador.PARADO;
+		qtdUsuarios =0;
+		status = StatusElevador.IDLE;
 		partiu = false;
+	}
+	
+	public void addUsuario(Usuario usuario) {
+
+		if (this.getParadas().get(usuario.getAndarDestino()) == null) {
+			this.getParadas().put(usuario.getAndarDestino(), new ArrayList<>());
+		}
+
+		this.getParadas().get(usuario.getAndarDestino()).add(usuario);
+		qtdUsuarios++;
+	}
+	
+	public boolean isCheio(){
+		return qtdUsuarios >= capacidade;
 	}
 
 	public int getCapacidade() {
@@ -39,7 +56,7 @@ public class Viagem {
 	public Integer getProximaParada(){
 		Integer proxima =  paradas.ceilingKey(this.andarAtual);
 		
-		if(this.andarAtual > paradas.lastKey()){
+		if(this.andarAtual == paradas.lastKey()){
 			return null;
 		}
 		return proxima;
@@ -79,5 +96,9 @@ public class Viagem {
 	
 	public void setPartiu(boolean partiu) {
 		this.partiu = partiu;
+	}
+	
+	public int getQtdUsuarios() {
+		return qtdUsuarios;
 	}
 }
