@@ -28,7 +28,7 @@ public class ElevadorManager implements ElevadorEventListener {
 	private List<Long> tempoTotal = Collections.synchronizedList(new ArrayList<>());
 
 	public ElevadorManager(int qtdElevadores, long fusoHorario) throws IOException {
-		writer = Files.newBufferedWriter(Paths.get("c:/Temp", "resultado_elevador.csv"), Charset.forName("UTF-8"),
+		writer = Files.newBufferedWriter(Paths.get("resultado_elevador.csv"), Charset.forName("UTF-8"),
 				StandardOpenOption.SYNC, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
 				StandardOpenOption.TRUNCATE_EXISTING);
 		writer.write(

@@ -12,9 +12,6 @@ import com.acmeinc.elevadores.manager.ElevadorEventListener;
 import com.acmeinc.elevadores.util.ElevadorUtils;
 
 public class Elevador implements Runnable {
-
-	
-	
 	
 	private long fusoHorario;
 	private Integer number;
@@ -32,9 +29,11 @@ public class Elevador implements Runnable {
 		this.elevadorEventListener = elevadorEventListener;
 
 	}
-	
-	
 
+	/**
+	 * Controlador de subida, descida e paradas do elevador
+	 * 
+	 */
 	@Override
 	public void run() {
 		while (true) { // NOSONAR
@@ -117,8 +116,6 @@ public class Elevador implements Runnable {
 			dataSaida.setTimeInMillis((System.currentTimeMillis() + fusoHorario));
 			dataSaida.add(Calendar.MILLISECOND, (int) tempoParadaAndar);
 			viagemAtual.setDataSaida(dataSaida);
-			// System.out.println(String.format("Elevador %s próxima saída: %s",
-			// number, dataSaida.getTime()));
 		}
 
 		if (!viagemAtual.isPartiu() && !viagemAtual.isCheio()) {
@@ -135,6 +132,11 @@ public class Elevador implements Runnable {
 		}
 	}
 
+	/**
+	 * Adiciona um usuário na fila do elevador
+	 * 
+	 * @param usuario
+	 */
 	public void addUsuario(Usuario usuario) {
 		getUltimaViagem().addUsuario(usuario);
 	}
@@ -148,7 +150,7 @@ public class Elevador implements Runnable {
 	}
 
 	public Viagem getViagemAtual() {
-		if(viagens.size() == 0){
+		if(viagens.isEmpty()){
 			viagens.add(new Viagem(this.capacidade));
 		}
 		return viagens.get(0);
