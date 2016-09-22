@@ -28,7 +28,7 @@ public class Elevador implements Runnable {
 		
 		this.fusoHorario = fusoHorario;
 		this.number = number;
-		viagens.add(new Viagem());
+		viagens.add(new Viagem(this.capacidade));
 		this.elevadorEventListener = elevadorEventListener;
 
 	}
@@ -126,7 +126,7 @@ public class Elevador implements Runnable {
 		} else {
 			Viagem ultimo = this.getUltimaViagem();
 			if (ultimo.isPartiu() || !ultimo.isPartiu() && ultimo.isCheio()) {
-				Viagem proximo = new Viagem();
+				Viagem proximo = new Viagem(this.capacidade);
 				Calendar dataSaida = ElevadorUtils.estimarProximaSaida(ultimo, this.tempoEntreAndares, this.tempoParadaAndar);
 				proximo.setDataSaida(dataSaida);
 				viagens.add(proximo);
@@ -149,7 +149,7 @@ public class Elevador implements Runnable {
 
 	public Viagem getViagemAtual() {
 		if(viagens.size() == 0){
-			viagens.add(new Viagem());
+			viagens.add(new Viagem(this.capacidade));
 		}
 		return viagens.get(0);
 	}

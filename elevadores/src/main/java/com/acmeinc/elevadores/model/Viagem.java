@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 public class Viagem {
 		
-	private int capacidade = 8;
+	private int capacidade;
 	private TreeMap<Integer,List<Usuario>> paradas;
 	private Integer andarAtual;
 	private Calendar dataSaida;
@@ -15,7 +15,8 @@ public class Viagem {
 	private boolean partiu;
 	private int qtdUsuarios;
 	
-	public Viagem() {
+	public Viagem(int capacidade) {
+		this.capacidade = capacidade;
 		paradas = new TreeMap<>();
 		andarAtual = 1;
 		qtdUsuarios =0;

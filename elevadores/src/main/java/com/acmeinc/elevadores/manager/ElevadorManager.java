@@ -26,12 +26,13 @@ public class ElevadorManager implements ElevadorEventListener {
 	private List<Long> tempoEspera = Collections.synchronizedList(new ArrayList<>());
 	private List<Long> tempoElevador = Collections.synchronizedList(new ArrayList<>());
 	private List<Long> tempoTotal = Collections.synchronizedList(new ArrayList<>());
-	
 
 	public ElevadorManager(int qtdElevadores, long fusoHorario) throws IOException {
-		writer = Files.newBufferedWriter(Paths.get("c:/Temp", "resultado_elevador.csv"), Charset.forName("UTF-8"), StandardOpenOption.SYNC,
-				StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-		writer.write("Ordem Chegada;Nome;Data Chegada;andar;elevador;Data Saída Elevador;Data Chegada Destino;Tempo médio Espera;Tempo médio Elevador;Tempo médio Total");
+		writer = Files.newBufferedWriter(Paths.get("c:/Temp", "resultado_elevador.csv"), Charset.forName("UTF-8"),
+				StandardOpenOption.SYNC, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+				StandardOpenOption.TRUNCATE_EXISTING);
+		writer.write(
+				"Ordem Chegada;Nome;Data Chegada;andar;elevador;Data Saída Elevador;Data Chegada Destino;Tempo médio Espera;Tempo médio Elevador;Tempo médio Total");
 		writer.newLine();
 		writer.flush();
 		this.fusoHorario = fusoHorario;
@@ -60,20 +61,21 @@ public class ElevadorManager implements ElevadorEventListener {
 	@Override
 	public void publish(Usuario usuario) {
 
-		Long tempoEspUs = usuario.getDataSaidaElevador().getTimeInMillis() - usuario.getDataChegada().getTimeInMillis();
-		Long tempoElvUs = usuario.getDataDesembarque().getTimeInMillis()
-				- usuario.getDataSaidaElevador().getTimeInMillis();
-		tempoEspera.add(tempoEspUs);
-		tempoElevador.add(tempoElvUs);
-		tempoTotal.add(tempoElvUs + tempoEspUs);
-
-		String linha = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s", usuario.getId(), usuario.getNome(),
-				sdf.format(usuario.getDataChegada().getTime()), usuario.getAndarDestino(), usuario.getNumeroElevador(),
-				sdf.format(usuario.getDataSaidaElevador().getTime()),
-				sdf.format(usuario.getDataDesembarque().getTime()), calcularTempoMedio(tempoEspera),
-				calcularTempoMedio(tempoElevador), calcularTempoMedio(tempoTotal));
-
 		synchronized (writer) {
+			Long tempoEspUs = usuario.getDataSaidaElevador().getTimeInMillis()
+					- usuario.getDataChegada().getTimeInMillis();
+			Long tempoElvUs = usuario.getDataDesembarque().getTimeInMillis()
+					- usuario.getDataSaidaElevador().getTimeInMillis();
+			tempoEspera.add(tempoEspUs);
+			tempoElevador.add(tempoElvUs);
+			tempoTotal.add(tempoElvUs + tempoEspUs);
+
+			String linha = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s", usuario.getId(), usuario.getNome(),
+					sdf.format(usuario.getDataChegada().getTime()), usuario.getAndarDestino(),
+					usuario.getNumeroElevador(), sdf.format(usuario.getDataSaidaElevador().getTime()),
+					sdf.format(usuario.getDataDesembarque().getTime()), calcularTempoMedio(tempoEspera),
+					calcularTempoMedio(tempoElevador), calcularTempoMedio(tempoTotal));
+
 			try {
 				writer.write(linha);
 				writer.newLine();
@@ -81,8 +83,10 @@ public class ElevadorManager implements ElevadorEventListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
+			System.out.println(linha);
 		}
-		System.out.println(linha);
+		
 
 	}
 
@@ -97,9 +101,9 @@ public class ElevadorManager implements ElevadorEventListener {
 		if (!tempos.isEmpty()) {
 			Iterator<Long> it = tempos.iterator();
 			while (it.hasNext()) {
-				sum += (Long) it.next();				
+				sum += (Long) it.next();
 			}
-			return LocalTime.ofSecondOfDay((sum / tempos.size())/1000);
+			return LocalTime.ofSecondOfDay((sum / tempos.size()) / 1000);
 		}
 		return LocalTime.ofSecondOfDay(sum);
 	}
