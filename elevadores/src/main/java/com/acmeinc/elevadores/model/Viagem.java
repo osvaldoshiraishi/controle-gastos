@@ -15,6 +15,11 @@ public class Viagem {
 	private boolean partiu;
 	private int qtdUsuarios;
 	
+	/**
+	 * Classe que representa um viagem de elevador 
+	 * 
+	 * @param capacidade capacidade do elevador
+	 */
 	public Viagem(int capacidade) {
 		this.capacidade = capacidade;
 		paradas = new TreeMap<>();
@@ -24,6 +29,11 @@ public class Viagem {
 		partiu = false;
 	}
 	
+	/**
+	 * Aciona um usuário a essa viagem de elevador
+	 * 
+	 * @param usuario
+	 */
 	public void addUsuario(Usuario usuario) {
 
 		if (this.getParadas().get(usuario.getAndarDestino()) == null) {
@@ -34,6 +44,11 @@ public class Viagem {
 		qtdUsuarios++;
 	}
 	
+	/**
+	 * Validação para verificar se o elevador está cheio
+	 * 
+	 * @return true caso o elevador já estiver cheio
+	 */
 	public boolean isCheio(){
 		return qtdUsuarios >= capacidade;
 	}
@@ -54,6 +69,11 @@ public class Viagem {
 		this.paradas = paradas;
 	}
 
+	/**
+	 * Próxima andar que o elevador irá parar
+	 * 
+	 * @return o andar ou null caso ja esteja no último
+	 */
 	public Integer getProximaParada(){
 		Integer proxima =  paradas.ceilingKey(this.andarAtual);
 		
@@ -83,6 +103,11 @@ public class Viagem {
 		this.dataSaida = dataSaida;
 	}
 
+	/**
+	 * Status que se encontra essa viagem de elevador
+	 * 
+	 * @return StatusElevador
+	 */
 	public StatusElevador getStatus() {
 		return status;
 	}
@@ -91,6 +116,11 @@ public class Viagem {
 		this.status = status;
 	}	
 	
+	/**
+	 * flag para indicar que o elevador dessa viagem está em transito
+	 * 
+	 * @return true caso o elevador dessa viagem já estiver em transito
+	 */
 	public boolean isPartiu() {
 		return partiu;
 	}

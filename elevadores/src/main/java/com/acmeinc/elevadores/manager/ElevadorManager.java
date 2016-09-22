@@ -27,6 +27,12 @@ public class ElevadorManager implements ElevadorEventListener {
 	private List<Long> tempoElevador = Collections.synchronizedList(new ArrayList<>());
 	private List<Long> tempoTotal = Collections.synchronizedList(new ArrayList<>());
 
+	/**
+	 * Contrutor 
+	 * @param qtdElevadores quantidades de elevadores que serão cridados
+	 * @param fusuHorario fuso horário para corrigir da data de simulação
+	 * @throws IOException
+	 */
 	public ElevadorManager(int qtdElevadores, long fusoHorario) throws IOException {
 		writer = Files.newBufferedWriter(Paths.get("resultado_elevador.csv"), Charset.forName("UTF-8"),
 				StandardOpenOption.SYNC, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
@@ -64,6 +70,7 @@ public class ElevadorManager implements ElevadorEventListener {
 		return elevadorSelecionado.getNumber();
 	}
 
+	
 	@Override
 	public void publish(Usuario usuario) {
 
@@ -97,10 +104,10 @@ public class ElevadorManager implements ElevadorEventListener {
 	}
 
 	/**
-	 * Tempo médio em segundos
+	 * Tempo médio do elementos da lista
 	 * 
-	 * @param tempos
-	 * @return
+	 * @param tempos Lista com os tempos	 * 
+	 * @return LocalTime do tempo médio 
 	 */
 	private LocalTime calcularTempoMedio(List<Long> tempos) {
 		Long sum = 0L;

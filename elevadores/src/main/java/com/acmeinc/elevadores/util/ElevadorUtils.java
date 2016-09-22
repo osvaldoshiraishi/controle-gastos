@@ -13,7 +13,10 @@ public class ElevadorUtils {
 	 * Calculo do próximo horário de embarque do elevador
 	 * 
 	 * @param elevador
+	 * @param tempoEntreAndares
+	 * @param tempoParadaAndar
 	 * @return data do próximo embarque
+	 * 
 	 */
 	public static Calendar estimarProximaSaida(Viagem viagem,Integer tempoEntreAndares, Integer tempoParadaAndar){
 		
@@ -27,11 +30,6 @@ public class ElevadorUtils {
 		Integer tempoDescida = tempoSubida; 
 		Calendar proximoHorarioEmbarque = (Calendar) dataSaida.clone();
 		proximoHorarioEmbarque.add(Calendar.MILLISECOND, (tempoSubida + tempoParadas + tempoDescida + tempoParadaAndar));
-		
-		//System.out.println(String.format("Elevador %s Tempo Paradas: %s", elevador.getNumber(), tempoParadas));
-		//System.out.println(String.format("Elevador %s Tempo Subida: %s", elevador.getNumber(), tempoSubida));
-		//System.out.println(String.format("Elevador %s Tempo Descida: %s", elevador.getNumber(), tempoDescida));
-		//System.out.println(String.format("Elevador %s próxima saída: %s", elevador.getNumber(), proximoHorarioEmbarque.getTime()));
 		return proximoHorarioEmbarque;
 	}
 
@@ -39,6 +37,7 @@ public class ElevadorUtils {
 	 * Seleciona o elevador que irá chegar ao destino antes.
 	 * @param andar Andar destino
 	 * @param elevadores lista de elevadores selecionados
+	 * @param fusuHorario fuso horário para corrigir da data de simulação
 	 * 
 	 * @return Elevador que chegará ao andar antes
 	 */
@@ -55,21 +54,18 @@ public class ElevadorUtils {
 			
 			Calendar horarioSaida = estimarProximaSaida(elevador.getUltimaViagem(),elevador.getTempoEntreAndares(), elevador.getTempoParadaAndar());
 			if(horarioSaida == null){
-				data.setTimeInMillis((System.currentTimeMillis() + fusuHorario +elevadorSelecionado.getTempoParadaAndar()));
+				data.setTimeInMillis((System.currentTimeMillis() + fusuHorario +elevador.getTempoParadaAndar()));
 				horarioSaida = data;
 			}
 			
-			if(melhorHorarioProximaSaida == null){
-				melhorHorarioProximaSaida = horarioSaida;
-				elevadorSelecionado = elevador;
-			}else if(melhorHorarioProximaSaida.after(horarioSaida)){
+			if(melhorHorarioProximaSaida == null || melhorHorarioProximaSaida.after(horarioSaida)){
 				melhorHorarioProximaSaida = horarioSaida;
 				elevadorSelecionado = elevador;
 			}
 		}
 		
-		if(elevadorSelecionado.proximaViagem().getDataSaida() == null){
-			data.setTimeInMillis((System.currentTimeMillis() + fusuHorario +elevadorSelecionado.getTempoParadaAndar()));
+		if(elevadorSelecionado != null && elevadorSelecionado.proximaViagem().getDataSaida() == null){
+			data.setTimeInMillis(System.currentTimeMillis() + fusuHorario +elevadorSelecionado.getTempoParadaAndar());
 			elevadorSelecionado.proximaViagem().setDataSaida(data);
 		}
 		return elevadorSelecionado;
