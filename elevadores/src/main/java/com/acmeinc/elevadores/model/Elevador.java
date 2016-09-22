@@ -1,11 +1,6 @@
 package com.acmeinc.elevadores.model;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -13,25 +8,28 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.acmeinc.elevadores.manager.ElevadorEventListener;
 import com.acmeinc.elevadores.util.ElevadorUtils;
 
 public class Elevador implements Runnable {
 
 	
-	static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-	private BufferedWriter writer;
+	
+	
 	private long fusoHorario;
 	private Integer number;
 	private Integer capacidade = 8;
 	private Integer tempoEntreAndares = 2000;
 	private Integer tempoParadaAndar = 20000;
 	private List<Viagem> viagens = Collections.synchronizedList(new ArrayList<>());
+	private ElevadorEventListener elevadorEventListener = null;
 
-	public Elevador(Integer number, long fusoHorario) throws IOException {
-		writer = Files.newBufferedWriter(Paths.get("c:/Temp", "resultado"+number+"csv"), StandardOpenOption.SYNC,StandardOpenOption.WRITE,StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+	public Elevador(Integer number, long fusoHorario, ElevadorEventListener elevadorEventListener) throws IOException {
+		
 		this.fusoHorario = fusoHorario;
 		this.number = number;
 		viagens.add(new Viagem());
+		this.elevadorEventListener = elevadorEventListener;
 
 	}
 	
@@ -45,33 +43,38 @@ public class Elevador implements Runnable {
 					&& viagemAtual.getDataSaida().getTimeInMillis() < (System.currentTimeMillis() + fusoHorario)) { // NOSONAR
 
 				viagemAtual.setPartiu(true);
-				viagemAtual.setStatus(StatusElevador.SUBINDO);
+				
 				printStatus();
 				// subindo
 				while (viagemAtual.getProximaParada() != null) {
 					
 					try {
+						viagemAtual.setStatus(StatusElevador.SUBINDO);
 						Thread.sleep(tempoEntreAndares);
 						viagemAtual.setAndarAtual(viagemAtual.getAndarAtual() + 1);
+						
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					if (viagemAtual.getProximaParada() == null || viagemAtual.getProximaParada().equals(viagemAtual.getAndarAtual())) {
 						try {
+							long init = System.currentTimeMillis();
 							viagemAtual.setStatus(StatusElevador.PARADO);
 							Calendar dataAtual = GregorianCalendar.getInstance();
 							dataAtual.setTimeInMillis((System.currentTimeMillis() + fusoHorario));
+							printStatus();
 							for (Usuario u : viagemAtual.getParadas().get(viagemAtual.getAndarAtual())) {
 								u.setDataDesembarque(dataAtual);
-							}
-
-							printStatus();
-							Thread.sleep(tempoParadaAndar);
+								this.elevadorEventListener.publish(u);
+							}							
+							Thread.sleep(tempoParadaAndar - (System.currentTimeMillis()-init));
 							// remove a parada atual da lista de paradas
 							viagemAtual.getParadas().remove(0);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
+					}else{
+						printStatus();
 					}
 					
 				}
@@ -80,7 +83,7 @@ public class Elevador implements Runnable {
 				viagemAtual.setAndarAtual(viagemAtual.getAndarAtual() - 1);
 				while (andar != 1) {
 					viagemAtual.setStatus(StatusElevador.DESCENDO);
-					//printStatus();
+					printStatus();	
 					try {
 						Thread.sleep(tempoEntreAndares);
 						andar--;
@@ -89,46 +92,13 @@ public class Elevador implements Runnable {
 						e.printStackTrace();
 					}
 				}
-				sumarizar(viagemAtual);
 				viagemAtual.setStatus(StatusElevador.FIM);
 				printStatus();
 				//remove a viagem de elevador da fila de viangens.
 				viagens.remove(0);
 
-			} else {
-				/*try {
-					Thread.sleep(100L);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}*/
-				// printStatus();
-			}
+			} 
 		}
-	}
-
-	private void sumarizar(Viagem viagem) {
-		viagem.getParadas().forEach((k, v) -> v.forEach(c -> printSumarizacaoConsumidor(c)));
-		try {
-			writer.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void printSumarizacaoConsumidor(Usuario usuario) {
-		String linha = String.format("%s;%s;%s;%s;%s;%s;%s", usuario.getId(), usuario.getNome(),
-				sdf.format(usuario.getDataChegada().getTime()), usuario.getAndarDestino(), usuario.getNumeroElevador(),
-				sdf.format(usuario.getDataSaidaElevador().getTime()),
-				sdf.format(usuario.getDataDesembarque().getTime()));
-		try {
-			writer.write(linha);
-			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println(linha);
-		
-		
 	}
 
 	public Integer getNumber() {
